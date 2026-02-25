@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>heartOS v1.0</title>
+
+<style>
+body {
+    background-color: #000;
+    color: #00ff88;
+    font-family: monospace;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden;
+    transition: background 1s ease;
+}
+
+#terminal {
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+.glow {
+    background-color: #001a0f;
+    box-shadow: inset 0 0 150px #00ff88;
+}
+
+.heart {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    font-size: 80px;
+    animation: beat 1s infinite;
+}
+
+@keyframes beat {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.3); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.love-text {
+    position: fixed;
+    top: calc(50% + 70px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 22px;
+    text-align: center;
+    animation: fadeIn 2s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.input-line {
+    display: flex;
+}
+
+.prompt {
+    margin-right: 5px;
+}
+
+input {
+    background: none;
+    border: none;
+    color: #00ff88;
+    font-family: monospace;
+    font-size: 16px;
+    outline: none;
+    width: 100%;
+}
+</style>
+</head>
+<body>
+
+<div id="terminal"></div>
+
+<script>
+const terminal = document.getElementById("terminal");
+const body = document.body;
+
+let state = "boot";
+
+function print(text) {
+    terminal.innerHTML += text + "\n";
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
+function newInput() {
+    const line = document.createElement("div");
+    line.className = "input-line";
+
+    const prompt = document.createElement("span");
+    prompt.className = "prompt";
+    prompt.textContent = ">";
+
+    const input = document.createElement("input");
+
+    input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            const value = input.value.trim();
+            line.remove();
+            print("> " + value);
+            handleCommand(value);
+        }
+    });
+
+    line.appendChild(prompt);
+    line.appendChild(input);
+    terminal.appendChild(line);
+    input.focus();
+}
+
+function activateLoveMode() {
+    body.classList.add("glow");
+
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "💚";
+    document.body.appendChild(heart);
+
+    const text = document.createElement("div");
+    text.className = "love-text";
+    text.innerHTML = "Benim için oldukça değerlisin :))";
+    document.body.appendChild(text);
+}
+
+function resetSystem() {
+    setTimeout(() => {
+        terminal.innerHTML = "";
+        body.classList.remove("glow");
+        document.querySelectorAll(".heart, .love-text").forEach(el => el.remove());
+        state = "boot";
+        bootSequence();
+    }, 1500);
+}
+
+function handleCommand(cmd) {
+
+    if (state === "boot") {
+        if (cmd.toLowerCase() === "help") {
+            print("\nAvailable commands:");
+            print("- scan\n");
+            state = "command";
+        } else {
+            print("Type 'help' to continue.\n");
+        }
+    }
+
+    else if (state === "command") {
+        if (cmd.toLowerCase() === "scan") {
+            print("\nScanning system...\n");
+            print("Detected missing dependency:");
+            print("YOU.dll\n");
+            print("Version required: forever");
+            print("Install now? (Y/N)\n");
+            state = "installPrompt";
+        }
+    }
+
+    else if (state === "installPrompt") {
+        if (cmd.toLowerCase() === "y") {
+            print("\nInstalling YOU.dll ...");
+            print("[██████████] 100%\n");
+            print("Starting happiness.service ...");
+            print("Status: RUNNING ✅");
+            print("Date initialized: After Ramadan ❤️\n");
+
+            activateLoveMode();
+        } else {
+            print("\nRequest declined.");
+            print("System restarting...\n");
+            resetSystem();
+        }
+    }
+
+    newInput();
+}
+
+function bootSequence() {
+    print("Booting heartOS v1.0...");
+    print("System check in progress...\n");
+    print("Checking happiness.service ... FAILED");
+    print("Checking motivation.service ... OK");
+    print("Checking missing.module ... NOT FOUND\n");
+    print("Type 'help' to continue.\n");
+    newInput();
+}
+
+bootSequence();
+</script>
+
+</body>
+</html>
